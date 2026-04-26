@@ -1,0 +1,23 @@
+{% extends 'base/base.html' %}
+{% block title %}Finalizar Locação{% endblock %}
+{% block page_title %}Finalizar Locação{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:480px">
+    <div class="card-body" style="text-align:center;padding:40px">
+        <div style="font-size:2.5rem;margin-bottom:16px">✅</div>
+        <h2 style="font-family:'Syne',sans-serif;margin-bottom:8px">Finalizar locação?</h2>
+        <p style="color:var(--text2);margin-bottom:8px">
+            Locação de <strong style="color:var(--text)">{{ locacao.cliente.nome }}</strong>
+        </p>
+        <p style="color:var(--text3);font-size:0.85rem;margin-bottom:24px">
+            O estoque de todos os itens será devolvido automaticamente.
+        </p>
+        <form method="post" style="display:flex;gap:12px;justify-content:center">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Confirmar finalização</button>
+            <a href="{% url 'locacao_detalhe' locacao.pk %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

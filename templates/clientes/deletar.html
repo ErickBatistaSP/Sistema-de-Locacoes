@@ -1,0 +1,21 @@
+{% extends 'base/base.html' %}
+{% block title %}Remover Cliente{% endblock %}
+{% block page_title %}Remover Cliente{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:480px">
+    <div class="card-body" style="text-align:center;padding:40px">
+        <div style="font-size:2.5rem;margin-bottom:16px">⚠️</div>
+        <h2 style="font-family:'Syne',sans-serif;margin-bottom:8px">Remover cliente?</h2>
+        <p style="color:var(--text2);margin-bottom:24px">
+            Tem certeza que deseja remover <strong style="color:var(--text)">{{ cliente.nome }}</strong>?
+            Esta ação não pode ser desfeita.
+        </p>
+        <form method="post" style="display:flex;gap:12px;justify-content:center">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Sim, remover</button>
+            <a href="{% url 'clientes_list' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

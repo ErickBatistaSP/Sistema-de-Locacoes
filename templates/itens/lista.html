@@ -1,0 +1,106 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}Itens — NeteLocações{% endblock %}
+{% block page_title %}Itens{% endblock %}
+
+
+{% block topbar_actions %}
+    <a href="{% url 'item_criar' %}" class="btn btn-primary">+ Novo Item</a>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.itens-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.item-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: border-color 0.2s;
+}
+
+.item-card:hover { border-color: var(--text3); }
+
+.item-emoji { font-size: 2.5rem; margin-bottom: 12px; }
+.item-tipo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.item-emoji img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    filter: invert(47%) sepia(98%) saturate(500%) hue-rotate(5deg);
+}
+
+.item-estoque-num {
+    font-size: 2.2rem;
+    font-weight: 800;
+    font-family: 'Anton', sans-serif;
+    color: white;
+    line-height: 1;
+}
+
+.item-estoque-label {
+    font-size: 0.75rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+    margin-bottom: 16px;
+}
+
+.item-card-actions { display: flex; gap: 8px; }
+
+.estoque-zero { color: var(--red) !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if itens %}
+<div class="itens-grid">
+    {% for item in itens %}
+    <div class="item-card">
+        <div class="item-emoji">
+            {% if item.tipo == 'cadeira' %}
+            <img src="{% static 'img/cadeira.svg' %}" alt="Cadeira">
+            {% elif item.tipo == 'mesa' %}
+            <img src="{% static 'img/mesa.svg' %}" alt="Cadeira">
+            {% elif item.tipo == 'pula_pula' %}
+            <img src="{% static 'img/pula-pula.svg' %}" alt="Cadeira">
+            {% elif item.tipo == 'piscina_bolinha' %}
+            <img src="{% static 'img/bola.svg' %}" alt="Cadeira">
+            {% else %}<img src="{% static 'img/pula-pula.svg' %}" alt="Item">{% endif %}
+        </div>
+        <div class="item-tipo">{{ item.get_tipo_display }}</div>
+        <div class="item-estoque-num {% if item.quantidade_estoque == 0 %}estoque-zero{% endif %}">
+            {{ item.quantidade_estoque }}
+        </div>
+        <div class="item-estoque-label">
+            {% if item.quantidade_estoque == 0 %}sem estoque{% else %}disponível{% endif %}
+        </div>
+        <div class="item-card-actions">
+            <a href="{% url 'item_editar' item.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+            <a href="{% url 'item_deletar' item.pk %}" class="btn btn-danger btn-sm">Remover</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="empty">
+        <div class="empty-icon">📦</div>
+        <h3>Nenhum item cadastrado</h3>
+        <p>Adicione os itens do seu estoque.</p>
+        <a href="{% url 'item_criar' %}" class="btn btn-primary">Novo Item</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

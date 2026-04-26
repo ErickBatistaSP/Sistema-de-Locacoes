@@ -1,0 +1,233 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Dashboard — NeteLocações{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+
+.stat-card:hover { border-color: var(--text3); }
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    opacity: 0.06;
+    transform: translate(20px, -20px);
+}
+
+.stat-card.yellow::after { background: var(--accent); }
+.stat-card.green::after { background: var(--green); }
+.stat-card.blue::after { background: var(--blue); }
+.stat-card.red::after { background: var(--red); }
+
+.stat-icon {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+}
+
+.stat-value {
+    font-family: 'Anton', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.stat-card.yellow .stat-value { color: var(--accent); }
+.stat-card.green .stat-value { color: var(--green); }
+.stat-card.blue .stat-value { color: var(--blue); }
+.stat-card.red .stat-value { color: var(--red); }
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.item-estoque {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.item-estoque:last-child { border-bottom: none; }
+
+.item-nome { font-size: 0.875rem; color: var(--text); }
+
+.estoque-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 140px;
+}
+
+.estoque-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.estoque-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--green);
+    transition: width 0.4s ease;
+}
+
+.estoque-fill.low { background: var(--red); }
+.estoque-fill.mid { background: var(--accent); }
+
+.estoque-num {
+    font-size: 0.8rem;
+    color: var(--text2);
+    width: 20px;
+    text-align: right;
+}
+
+@media (max-width: 900px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .stat-value { font-size: 1.6rem; }
+}
+</style>
+{% endblock %}
+
+{% block topbar_actions %}
+    <a href="{% url 'locacao_criar' %}" class="btn btn-primary">
+        + Nova Locação
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card yellow">
+        <div class="stat-icon">📋</div>
+        <div class="stat-value">{{ total_locacoes }}</div>
+        <div class="stat-label">Locações Ativas</div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">{{ total_clientes }}</div>
+        <div class="stat-label">Clientes</div>
+    </div>
+    <div class="stat-card blue">
+        <div class="stat-icon">📦</div>
+        <div class="stat-value">{{ total_itens }}</div>
+        <div class="stat-label">Tipos de Itens</div>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">R${{ faturamento }}</div>
+        <div class="stat-label">Faturamento Total</div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Locações Recentes</span>
+            <a href="{% url 'locacoes_list' %}" class="btn btn-secondary btn-sm">Ver todas</a>
+        </div>
+        <div class="table-wrap">
+            {% if locacoes_recentes %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for loc in locacoes_recentes %}
+                    <tr onclick="window.location='{% url 'locacao_detalhe' loc.pk %}'" style="cursor:pointer">
+                        <td style="color:var(--text)">{{ loc.cliente.nome }}</td>
+                        <td>{{ loc.data_inicio|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if loc.status == 'ativa' %}
+                                <span class="badge badge-green">● Ativa</span>
+                            {% else %}
+                                <span class="badge badge-red">✓ Finalizada</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty">
+                <div class="empty-icon">📋</div>
+                <h3>Sem locações</h3>
+                <p>Nenhuma locação cadastrada ainda.</p>
+                <a href="{% url 'locacao_criar' %}" class="btn btn-primary">Criar primeira locação</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Estoque de Itens</span>
+            <a href="{% url 'itens_list' %}" class="btn btn-secondary btn-sm">Gerenciar</a>
+        </div>
+        <div class="card-body">
+            {% if itens %}
+                {% for item in itens %}
+                <div class="item-estoque">
+                    <span class="item-nome">{{ item.get_tipo_display }}</span>
+                    <div class="estoque-bar-wrap">
+                        <div class="estoque-bar">
+                            <div class="estoque-fill {% if item.quantidade_estoque <= 2 %}low{% elif item.quantidade_estoque <= 5 %}mid{% endif %}"
+                                 style="width: {% widthratio item.quantidade_estoque item.quantidade_max 100 %}%">
+                            </div>
+                        </div>
+                        <span class="estoque-num">{{ item.quantidade_estoque }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty">
+                <div class="empty-icon">📦</div>
+                <h3>Sem itens</h3>
+                <p>Cadastre itens no estoque.</p>
+                <a href="{% url 'item_criar' %}" class="btn btn-primary">Adicionar item</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

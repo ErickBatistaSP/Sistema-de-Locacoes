@@ -1,0 +1,103 @@
+{% extends 'base/base.html' %}
+{% block title %}Clientes — NeteLocações{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+
+{% block topbar_actions %}
+    <a href="{% url 'cliente_criar' %}" class="btn btn-primary">+ Novo Cliente</a>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.search-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.search-bar input {
+    max-width: 320px;
+}
+.cliente-inicial {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(240,165,0,0.15);
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.cliente-info { display: flex; align-items: center; gap: 12px; }
+.cliente-nome { color: var(--text); font-weight: 500; font-size: 0.875rem; }
+.cliente-bairro { font-size: 0.75rem; color: var(--text3); margin-top: 2px; }
+.td-actions { display: flex; gap: 8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-bar">
+    <form method="get" style="display:flex;gap:12px;width:100%">
+        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Buscar cliente...">
+        <button type="submit" class="btn btn-secondary">Buscar</button>
+        {% if request.GET.q %}
+            <a href="{% url 'clientes_list' %}" class="btn btn-secondary">Limpar</a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">{{ clientes.count }} cliente{{ clientes.count|pluralize }}</span>
+    </div>
+    <div class="table-wrap">
+        {% if clientes %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Telefone</th>
+                    <th>Bairro</th>
+                    <th>Endereço</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td>
+                        <div class="cliente-info">
+                            <div class="cliente-inicial">{{ cliente.nome|first|upper }}</div>
+                            <div>
+                                <div class="cliente-nome">{{ cliente.nome }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ cliente.telefone }}</td>
+                    <td>{{ cliente.bairro }}</td>
+                    <td>{{ cliente.endereco|default:"—" }}</td>
+                    <td>
+                        <div class="td-actions">
+                            <a href="{% url 'cliente_editar' cliente.pk %}" class="btn btn-secondary btn-sm">Editar</a>
+                            <a href="{% url 'cliente_deletar' cliente.pk %}" class="btn btn-danger btn-sm">Remover</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty">
+            <div class="empty-icon">👥</div>
+            <h3>Nenhum cliente encontrado</h3>
+            <p>{% if request.GET.q %}Tente outra busca.{% else %}Cadastre o primeiro cliente.{% endif %}</p>
+            {% if not request.GET.q %}
+                <a href="{% url 'cliente_criar' %}" class="btn btn-primary">Novo Cliente</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

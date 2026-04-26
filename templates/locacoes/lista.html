@@ -1,0 +1,99 @@
+{% extends 'base/base.html' %}
+{% block title %}Locações — NeteLocações{% endblock %}
+{% block page_title %}Locações{% endblock %}
+
+{% block topbar_actions %}
+    <a href="{% url 'locacao_criar' %}" class="btn btn-primary">+ Nova Locação</a>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    transition: all 0.15s;
+    background: var(--bg2);
+}
+
+.filter-btn:hover, .filter-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(240,165,0,0.05);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="filter-bar">
+    <a href="{% url 'locacoes_list' %}" class="filter-btn {% if not request.GET.status %}active{% endif %}">Todas</a>
+    <a href="?status=ativa" class="filter-btn {% if request.GET.status == 'ativa' %}active{% endif %}">● Ativas</a>
+    <a href="?status=finalizada" class="filter-btn {% if request.GET.status == 'finalizada' %}active{% endif %}">✓ Finalizadas</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">{{ locacoes.count }} locaç{% if locacoes.count == 1 %}ão{% else %}ões{% endif %}</span>
+    </div>
+    <div class="table-wrap">
+        {% if locacoes %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Início</th>
+                    <th>Fim</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loc in locacoes %}
+                <tr>
+                    <td style="color:var(--text);font-weight:500">{{ loc.cliente.nome }}</td>
+                    <td>{{ loc.data_inicio|date:"d/m/Y" }}</td>
+                    <td>{{ loc.data_fim|date:"d/m/Y" }}</td>
+                    <td style="color:var(--accent);font-weight:600">R$ {{ loc.preco_total }}</td>
+                    <td>
+                        {% if loc.status == 'ativa' %}
+                            <span class="badge badge-green">● Ativa</span>
+                        {% else %}
+                            <span class="badge badge-red">✓ Finalizada</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:8px">
+                            <a href="{% url 'locacao_detalhe' loc.pk %}" class="btn btn-secondary btn-sm">Ver</a>
+                            {% if loc.status == 'ativa' %}
+                                <a href="{% url 'locacao_finalizar' loc.pk %}" class="btn btn-success btn-sm">Finalizar</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty">
+            <div class="empty-icon">📋</div>
+            <h3>Nenhuma locação</h3>
+            <p>Crie a primeira locação do sistema.</p>
+            <a href="{% url 'locacao_criar' %}" class="btn btn-primary">Nova Locação</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

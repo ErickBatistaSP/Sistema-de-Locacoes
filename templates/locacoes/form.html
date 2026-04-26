@@ -1,0 +1,187 @@
+{% extends 'base/base.html' %}
+{% block title %}{% if form.instance.pk %}Editar{% else %}Nova{% endif %} Locação{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Editar Locação{% else %}Nova Locação{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+.locacao-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 20px;
+    align-items: start;
+}
+
+.formset-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+    padding: 16px;
+    background: var(--bg3);
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.formset-item label { font-size: 0.72rem; }
+
+.remove-btn {
+    background: none;
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--red);
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.85rem;
+}
+.remove-btn:hover { background: rgba(239,68,68,0.1); }
+
+.add-item-btn {
+    margin-top: 8px;
+    width: 100%;
+    justify-content: center;
+    border-style: dashed;
+}
+
+.info-box {
+    background: rgba(240,165,0,0.05);
+    border: 1px solid rgba(240,165,0,0.15);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 0.8rem;
+    color: var(--text2);
+    line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+    .locacao-layout { grid-template-columns: 1fr; }
+    .formset-item { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+    .formset-item { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="post">
+{% csrf_token %}
+<div class="locacao-layout">
+    <div style="display:flex;flex-direction:column;gap:20px">
+
+        <div class="card">
+            <div class="card-header"><span class="card-title">Dados da Locação</span></div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    {{ form.cliente }}
+                    {{ form.cliente.errors }}
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Data de Início</label>
+                        {{ form.data_inicio }}
+                        {{ form.data_inicio.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label>Data de Fim</label>
+                        {{ form.data_fim }}
+                        {{ form.data_fim.errors }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Observações</label>
+                    {{ form.observacoes }}
+                    {{ form.observacoes.errors }}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><span class="card-title">Itens da Locação</span></div>
+            <div class="card-body">
+                {{ formset.management_form }}
+                <div id="formset-container">
+                    {% for item_form in formset %}
+                        <div class="formset-item">
+                            {{ item_form.id }}
+                            <div class="form-group" style="margin:0">
+                                <label>Item</label>
+                                {{ item_form.item }}
+                            </div>
+                            <div class="form-group" style="margin:0">
+                                <label>Quantidade</label>
+                                {{ item_form.quantidade }}
+                            </div>
+                            <div class="form-group" style="margin:0">
+                                <label>Preço Unit. (R$)</label>
+                                {{ item_form.preco_unitario }}
+                            </div>
+                            <button type="button" class="remove-btn" onclick="removeFormset(this)">✕</button>
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="btn btn-secondary add-item-btn" onclick="addFormset()">
+                    + Adicionar item
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+            <div class="card-body">
+                <div class="info-box">
+                    💡 <strong>Como funciona:</strong><br><br>
+                    Ao salvar, o estoque de cada item será reduzido automaticamente.<br><br>
+                    Ao finalizar a locação, o estoque volta automaticamente.
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">
+                    {% if form.instance.pk %}Salvar alterações{% else %}Criar locação{% endif %}
+                </button>
+                <a href="{% url 'locacoes_list' %}" class="btn btn-secondary" style="width:100%;justify-content:center">
+                    Cancelar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+
+function addFormset() {
+    const container = document.getElementById('formset-container');
+    const forms = container.querySelectorAll('.formset-item');
+    const newIndex = forms.length;
+    const template = forms[0].cloneNode(true);
+
+    template.querySelectorAll('input, select').forEach(el => {
+        el.name = el.name.replace(/items-\d+/, `items-${newIndex}`);
+        el.id = el.id.replace(/items-\d+/, `items-${newIndex}`);
+        if (el.type !== 'hidden') el.value = '';
+    });
+
+    container.appendChild(template);
+    totalForms.value = parseInt(totalForms.value) + 1;
+}
+
+function removeFormset(btn) {
+    const container = document.getElementById('formset-container');
+    if (container.querySelectorAll('.formset-item').length > 1) {
+        btn.closest('.formset-item').remove();
+        totalForms.value = parseInt(totalForms.value) - 1;
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends 'base/base.html' %}
+{% block title %}Locação #{{ locacao.pk }}{% endblock %}
+{% block page_title %}Locação #{{ locacao.pk }}{% endblock %}
+
+{% block topbar_actions %}
+    {% if locacao.status == 'ativa' %}
+        <a href="{% url 'locacao_finalizar' locacao.pk %}" class="btn btn-success">✓ Finalizar Locação</a>
+        <a href="{% url 'locacao_editar' locacao.pk %}" class="btn btn-secondary">Editar</a>
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.detalhe-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+}
+
+.info-item {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-item:last-child { border-bottom: none; }
+
+.info-label {
+    font-size: 0.75rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.info-value {
+    font-size: 0.9rem;
+    color: var(--text);
+    font-weight: 500;
+}
+
+.total-box {
+    background: rgba(240,165,0,0.05);
+    border: 1px solid rgba(240,165,0,0.2);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+}
+
+.total-label {
+    font-size: 0.75rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+}
+
+.total-value {
+    font-family: 'Anton', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+@media (max-width: 768px) {
+    .detalhe-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detalhe-grid">
+    <div style="display:flex;flex-direction:column;gap:20px">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Informações da Locação</span>
+                {% if locacao.status == 'ativa' %}
+                    <span class="badge badge-green">● Ativa</span>
+                {% else %}
+                    <span class="badge badge-red">✓ Finalizada</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="info-item">
+                    <span class="info-label">Cliente</span>
+                    <span class="info-value">{{ locacao.cliente.nome }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Telefone</span>
+                    <span class="info-value">{{ locacao.cliente.telefone }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Bairro</span>
+                    <span class="info-value">{{ locacao.cliente.bairro }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Data Início</span>
+                    <span class="info-value">{{ locacao.data_inicio|date:"d/m/Y" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Data Fim</span>
+                    <span class="info-value">{{ locacao.data_fim|date:"d/m/Y" }}</span>
+                </div>
+                {% if locacao.observacoes %}
+                <div class="info-item">
+                    <span class="info-label">Observações</span>
+                    <span class="info-value">{{ locacao.observacoes }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Itens Locados</span>
+            </div>
+            <div class="table-wrap">
+                {% if itens %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qtd</th>
+                            <th>Preço Unit.</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for il in itens %}
+                        <tr>
+                            <td style="color:var(--text)">{{ il.item.get_tipo_display }}</td>
+                            <td>{{ il.quantidade }}</td>
+                            <td>R$ {{ il.preco_unitario }}</td>
+                            <td style="color:var(--accent);font-weight:600">
+                                R$ {% widthratio il.preco_unitario 1 il.quantidade %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty">
+                    <p>Nenhum item nesta locação.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+            <div class="card-body">
+                <div class="total-box">
+                    <div class="total-label">Total da Locação</div>
+                    <div class="total-value">R$ {{ locacao.preco_total }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+                {% if locacao.status == 'ativa' %}
+                    <a href="{% url 'locacao_finalizar' locacao.pk %}" class="btn btn-success" style="width:100%;justify-content:center">
+                        ✓ Finalizar e devolver estoque
+                    </a>
+                    <a href="{% url 'locacao_editar' locacao.pk %}" class="btn btn-secondary" style="width:100%;justify-content:center">
+                        Editar locação
+                    </a>
+                {% endif %}
+                <a href="{% url 'locacoes_list' %}" class="btn btn-secondary" style="width:100%;justify-content:center">
+                    ← Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
