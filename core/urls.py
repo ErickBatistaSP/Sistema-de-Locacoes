@@ -26,4 +26,8 @@ urlpatterns = [
     path('locacoes/<int:pk>/', views.locacao_detalhe, name='locacao_detalhe'),
     path('locacoes/<int:pk>/editar/', views.locacao_editar, name='locacao_editar'),
     path('locacoes/<int:pk>/finalizar/', views.locacao_finalizar, name='locacao_finalizar'),
+
+    # login
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
 ]

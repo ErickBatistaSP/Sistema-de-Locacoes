@@ -8,6 +8,31 @@ from item.models import Item
 from locacao.models import Locacao
 from itemlocacao.models import ItemLocacao
 
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+
+# ─── LOGIN ───────────────────────────────────────────────────────────────────
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Usuário ou senha incorretos.')
+    
+    return render(request, 'auth/login.html')
+
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
 # ─── FORMS ───────────────────────────────────────────────────────────────────
 
@@ -79,7 +104,7 @@ ItemLocacaoFormSet = inlineformset_factory(
 
 
 # ─── DASHBOARD ───────────────────────────────────────────────────────────────
-
+@login_required
 def dashboard(request):
     itens = Item.objects.all()
     # Pega a quantidade máxima para a barra de progresso
@@ -102,7 +127,7 @@ def dashboard(request):
 
 
 # ─── CLIENTES ────────────────────────────────────────────────────────────────
-
+@login_required
 def clientes_list(request):
     q = request.GET.get('q', '')
     clientes = Cliente.objects.all()
@@ -110,7 +135,7 @@ def clientes_list(request):
         clientes = clientes.filter(nome__icontains=q)
     return render(request, 'clientes/lista.html', {'clientes': clientes})
 
-
+@login_required
 def cliente_criar(request):
     form = ClienteForm(request.POST or None)
     if form.is_valid():
@@ -119,7 +144,7 @@ def cliente_criar(request):
         return redirect('clientes_list')
     return render(request, 'clientes/form.html', {'form': form})
 
-
+@login_required
 def cliente_editar(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
     form = ClienteForm(request.POST or None, instance=cliente)
@@ -129,7 +154,7 @@ def cliente_editar(request, pk):
         return redirect('clientes_list')
     return render(request, 'clientes/form.html', {'form': form})
 
-
+@login_required
 def cliente_deletar(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
     if request.method == 'POST':
@@ -140,12 +165,12 @@ def cliente_deletar(request, pk):
 
 
 # ─── ITENS ───────────────────────────────────────────────────────────────────
-
+@login_required
 def itens_list(request):
     itens = Item.objects.all()
     return render(request, 'itens/lista.html', {'itens': itens})
 
-
+@login_required
 def item_criar(request):
     form = ItemForm(request.POST or None)
     if form.is_valid():
@@ -154,7 +179,7 @@ def item_criar(request):
         return redirect('itens_list')
     return render(request, 'itens/form.html', {'form': form})
 
-
+@login_required
 def item_editar(request, pk):
     item = get_object_or_404(Item, pk=pk)
     form = ItemForm(request.POST or None, instance=item)
@@ -164,7 +189,7 @@ def item_editar(request, pk):
         return redirect('itens_list')
     return render(request, 'itens/form.html', {'form': form})
 
-
+@login_required
 def item_deletar(request, pk):
     item = get_object_or_404(Item, pk=pk)
     if request.method == 'POST':
@@ -175,7 +200,7 @@ def item_deletar(request, pk):
 
 
 # ─── LOCAÇÕES ────────────────────────────────────────────────────────────────
-
+@login_required
 def locacoes_list(request):
     locacoes = Locacao.objects.select_related('cliente').order_by('-data_inicio')
     status = request.GET.get('status')
@@ -183,13 +208,13 @@ def locacoes_list(request):
         locacoes = locacoes.filter(status=status)
     return render(request, 'locacoes/lista.html', {'locacoes': locacoes})
 
-
+@login_required
 def locacao_detalhe(request, pk):
     locacao = get_object_or_404(Locacao, pk=pk)
     itens = locacao.items.select_related('item').all()
     return render(request, 'locacoes/detalhe.html', {'locacao': locacao, 'itens': itens})
 
-
+@login_required
 def locacao_criar(request):
     form = LocacaoForm(request.POST or None)
     formset = ItemLocacaoFormSet(request.POST or None)
@@ -204,7 +229,7 @@ def locacao_criar(request):
 
     return render(request, 'locacoes/form.html', {'form': form, 'formset': formset})
 
-
+@login_required
 def locacao_editar(request, pk):
     locacao = get_object_or_404(Locacao, pk=pk)
     form = LocacaoForm(request.POST or None, instance=locacao)
@@ -219,7 +244,7 @@ def locacao_editar(request, pk):
 
     return render(request, 'locacoes/form.html', {'form': form, 'formset': formset})
 
-
+@login_required
 def locacao_finalizar(request, pk):
     locacao = get_object_or_404(Locacao, pk=pk)
     if request.method == 'POST':
