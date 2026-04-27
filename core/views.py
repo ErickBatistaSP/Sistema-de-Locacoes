@@ -83,25 +83,49 @@ class ItemForm(forms.ModelForm):
 class LocacaoForm(forms.ModelForm):
     class Meta:
         model = Locacao
-        fields = ['cliente', 'data_inicio', 'data_fim', 'observacoes']
+        fields = ['cliente', 'data_inicio', 'data_fim', 'observacoes',
+                  'endereco_rua', 'endereco_numero', 'endereco_bairro', 'endereco_referencia']
         widgets = {
             'data_inicio': forms.DateInput(attrs={'type': 'date'}),
             'data_fim': forms.DateInput(attrs={'type': 'date'}),
             'observacoes': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Observações opcionais...'}),
+            'endereco_rua': forms.TextInput(attrs={'placeholder': 'Rua, Avenida...'}),
+            'endereco_numero': forms.TextInput(attrs={'placeholder': 'Número'}),
+            'endereco_bairro': forms.TextInput(attrs={'placeholder': 'Bairro'}),
+            'endereco_referencia': forms.TextInput(attrs={'placeholder': 'Ponto de referência'}),
         }
+
+
+class ItemLocacaoForm(forms.ModelForm):
+    class Meta:
+        model = ItemLocacao
+        fields = ['item', 'quantidade', 'preco_unitario']
+        widgets = {
+            'quantidade': forms.NumberInput(attrs={'min': 1, 'placeholder': 'Qtd'}),
+            'preco_unitario': forms.NumberInput(attrs={'min': 0, 'step': '0.01', 'placeholder': 'R$ 0,00'}),
+        }
+
+    def clean_quantidade(self):
+        quantidade = self.cleaned_data.get('quantidade')
+        if not quantidade or quantidade <= 0:
+            raise forms.ValidationError('Informe uma quantidade válida.')
+        return quantidade
+
+    def clean_preco_unitario(self):
+        preco = self.cleaned_data.get('preco_unitario')
+        if preco is None:
+            raise forms.ValidationError('Informe um preço válido.')
+        return preco
 
 
 ItemLocacaoFormSet = inlineformset_factory(
     Locacao, ItemLocacao,
-    fields=['item', 'quantidade', 'preco_unitario'],
+    form=ItemLocacaoForm,
     extra=1,
     can_delete=False,
-    widgets={
-        'quantidade': forms.NumberInput(attrs={'min': 1, 'placeholder': '0'}),
-        'preco_unitario': forms.NumberInput(attrs={'min': 0, 'step': '0.01', 'placeholder': '0,00'}),
-    }
+    min_num=1,
+    validate_min=True,
 )
-
 
 # ─── DASHBOARD ───────────────────────────────────────────────────────────────
 @login_required

@@ -99,34 +99,72 @@
         </div>
 
         <div class="card">
-            <div class="card-header"><span class="card-title">Itens da Locação</span></div>
+            <div class="card-header"><span class="card-title">Endereço de Entrega</span></div>
             <div class="card-body">
-                {{ formset.management_form }}
-                <div id="formset-container">
-                    {% for item_form in formset %}
-                        <div class="formset-item">
-                            {{ item_form.id }}
-                            <div class="form-group" style="margin:0">
-                                <label>Item</label>
-                                {{ item_form.item }}
-                            </div>
-                            <div class="form-group" style="margin:0">
-                                <label>Quantidade</label>
-                                {{ item_form.quantidade }}
-                            </div>
-                            <div class="form-group" style="margin:0">
-                                <label>Preço Unit. (R$)</label>
-                                {{ item_form.preco_unitario }}
-                            </div>
-                            <button type="button" class="remove-btn" onclick="removeFormset(this)">✕</button>
-                        </div>
-                    {% endfor %}
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Rua</label>
+                        {{ form.endereco_rua }}
+                        {{ form.endereco_rua.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label>Número</label>
+                        {{ form.endereco_numero }}
+                        {{ form.endereco_numero.errors }}
+                    </div>
                 </div>
-                <button type="button" class="btn btn-secondary add-item-btn" onclick="addFormset()">
-                    + Adicionar item
-                </button>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Bairro</label>
+                        {{ form.endereco_bairro }}
+                        {{ form.endereco_bairro.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label>Referência</label>
+                        {{ form.endereco_referencia }}
+                        {{ form.endereco_referencia.errors }}
+                    </div>
+                </div>
             </div>
         </div>
+
+<div class="card">
+    <div class="card-header"><span class="card-title">Itens da Locação</span></div>
+    <div class="card-body">
+        {{ formset.management_form }}
+        
+        {% if formset.non_form_errors %}
+            <div class="alert alert-error">⚠️ {{ formset.non_form_errors }}</div>
+        {% endif %}
+
+        <div id="formset-container">
+            {% for item_form in formset %}
+                <div class="formset-item">
+                    {{ item_form.id }}
+                    <div class="form-group" style="margin:0">
+                        <label>Item</label>
+                        {{ item_form.item }}
+                        {{ item_form.item.errors }}
+                    </div>
+                    <div class="form-group" style="margin:0">
+                        <label>Quantidade</label>
+                        {{ item_form.quantidade }}
+                        {{ item_form.quantidade.errors }}
+                    </div>
+                    <div class="form-group" style="margin:0">
+                        <label>Preço Unit. (R$)</label>
+                        {{ item_form.preco_unitario }}
+                        {{ item_form.preco_unitario.errors }}
+                    </div>
+                    <button type="button" class="remove-btn" onclick="removeFormset(this)">✕</button>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" class="btn btn-secondary add-item-btn" onclick="addFormset()">
+            + Adicionar item
+        </button>
+    </div>
+</div>
 
     </div>
 

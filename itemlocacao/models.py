@@ -7,7 +7,7 @@ class ItemLocacao(models.Model):
     locacao = models.ForeignKey(Locacao, on_delete=models.CASCADE, related_name='items')
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     quantidade = models.IntegerField()
-    preco_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    preco_unitario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return f"{self.item.get_tipo_display()} - {self.quantidade}"
@@ -16,6 +16,10 @@ class ItemLocacao(models.Model):
         # Bloqueia edição se locação já finalizada
         if self.locacao.status == 'finalizada':
             raise ValidationError("Não é possível editar itens de uma locação já finalizada.")
+
+        # Se quantidade não foi informada, deixa o form do views.py tratar
+        if not self.quantidade or not self.item_id:
+            return
 
         # Valida estoque disponível
         if self.pk:

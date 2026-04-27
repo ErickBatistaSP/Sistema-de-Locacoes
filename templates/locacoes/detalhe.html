@@ -111,6 +111,34 @@
             </div>
         </div>
 
+        {% if locacao.endereco_rua or locacao.endereco_bairro %}
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Endereço de Entrega</span>
+            </div>
+            <div class="card-body">
+                {% if locacao.endereco_rua %}
+                <div class="info-item">
+                    <span class="info-label">Rua</span>
+                    <span class="info-value">{{ locacao.endereco_rua }}, {{ locacao.endereco_numero|default:"s/n" }}</span>
+                </div>
+                {% endif %}
+                {% if locacao.endereco_bairro %}
+                <div class="info-item">
+                    <span class="info-label">Bairro</span>
+                    <span class="info-value">{{ locacao.endereco_bairro }}</span>
+                </div>
+                {% endif %}
+                {% if locacao.endereco_referencia %}
+                <div class="info-item">
+                    <span class="info-label">Referência</span>
+                    <span class="info-value">{{ locacao.endereco_referencia }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
         <div class="card">
             <div class="card-header">
                 <span class="card-title">Itens Locados</span>

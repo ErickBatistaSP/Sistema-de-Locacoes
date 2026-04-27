@@ -14,6 +14,12 @@ class Locacao(models.Model):
     observacoes = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ativa')
 
+    # Endereço de entrega
+    endereco_rua = models.CharField(max_length=200, blank=True, null=True)
+    endereco_numero = models.CharField(max_length=20, blank=True, null=True)
+    endereco_bairro = models.CharField(max_length=100, blank=True, null=True)
+    endereco_referencia = models.CharField(max_length=200, blank=True, null=True)
+
     def __str__(self):
         return f"Locação - {self.cliente.nome} ({self.data_inicio})"
 
@@ -21,6 +27,7 @@ class Locacao(models.Model):
         total = sum(
             item.preco_unitario * item.quantidade
             for item in self.items.all()
+            if item.preco_unitario is not None
         )
         self.preco_total = total
         self.save()
