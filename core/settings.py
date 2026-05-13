@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'item',
     'itemlocacao',
     'locacao',
+    'combo',
 ]
 
 MIDDLEWARE = [

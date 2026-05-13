@@ -10,7 +10,7 @@ class Locacao(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     data_inicio = models.DateField()
     data_fim = models.DateField()
-    preco_total = models.DecimalField(max_digits=10, decimal_places=2, default=0, editable=False)
+    preco_total = models.DecimalField(max_digits=10, decimal_places=2, default=None, null= True, blank=True)
     observacoes = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ativa')
 
@@ -23,20 +23,14 @@ class Locacao(models.Model):
     def __str__(self):
         return f"Locação - {self.cliente.nome} ({self.data_inicio})"
 
-    def calcular_preco_total(self):
-        total = sum(
-            item.preco_unitario * item.quantidade
-            for item in self.items.all()
-            if item.preco_unitario is not None
-        )
-        self.preco_total = total
-        self.save()
-
     def finalizar(self):
         if self.status == 'ativa':
+            # Devolve estoque dos itens individuais
             for item_locacao in self.items.all():
                 item_locacao.item.quantidade_estoque += item_locacao.quantidade
                 item_locacao.item.save()
-            self.calcular_preco_total()
+            # Devolve estoque dos combos
+            for combo_locacao in self.combos.all():
+                combo_locacao.devolver_estoque()
             self.status = 'finalizada'
             self.save()

@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.forms import inlineformset_factory
 from django import forms
 
+from combo.models import ComboLocacao
+
 from cliente.models import Cliente
 from item.models import Item
 from locacao.models import Locacao
@@ -83,11 +85,12 @@ class ItemForm(forms.ModelForm):
 class LocacaoForm(forms.ModelForm):
     class Meta:
         model = Locacao
-        fields = ['cliente', 'data_inicio', 'data_fim', 'observacoes',
+        fields = ['cliente', 'data_inicio', 'data_fim', 'preco_total', 'observacoes',
                   'endereco_rua', 'endereco_numero', 'endereco_bairro', 'endereco_referencia']
         widgets = {
             'data_inicio': forms.DateInput(attrs={'type': 'date'}),
             'data_fim': forms.DateInput(attrs={'type': 'date'}),
+            'preco_total': forms.NumberInput(attrs={'min': 0, 'step': '0.01', 'placeholder': 'R$ 0,00', 'value': ''}),
             'observacoes': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Observações opcionais...'}),
             'endereco_rua': forms.TextInput(attrs={'placeholder': 'Rua, Avenida...'}),
             'endereco_numero': forms.TextInput(attrs={'placeholder': 'Número'}),
@@ -95,27 +98,27 @@ class LocacaoForm(forms.ModelForm):
             'endereco_referencia': forms.TextInput(attrs={'placeholder': 'Ponto de referência'}),
         }
 
-
 class ItemLocacaoForm(forms.ModelForm):
     class Meta:
         model = ItemLocacao
-        fields = ['item', 'quantidade', 'preco_unitario']
+        fields = ['item', 'quantidade']
         widgets = {
             'quantidade': forms.NumberInput(attrs={'min': 1, 'placeholder': 'Qtd'}),
-            'preco_unitario': forms.NumberInput(attrs={'min': 0, 'step': '0.01', 'placeholder': 'R$ 0,00'}),
         }
 
     def clean_quantidade(self):
         quantidade = self.cleaned_data.get('quantidade')
         if not quantidade or quantidade <= 0:
-            raise forms.ValidationError('Informe uma quantidade válida.')
+            raise forms.ValidationError('Informe uma quantidade maior que zero.')
         return quantidade
 
-    def clean_preco_unitario(self):
-        preco = self.cleaned_data.get('preco_unitario')
-        if preco is None:
-            raise forms.ValidationError('Informe um preço válido.')
-        return preco
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if instance.preco_unitario is None:
+            instance.preco_unitario = 0
+        if commit:
+            instance.save()
+        return instance
 
 
 ItemLocacaoFormSet = inlineformset_factory(
@@ -125,6 +128,30 @@ ItemLocacaoFormSet = inlineformset_factory(
     can_delete=False,
     min_num=1,
     validate_min=True,
+)
+
+class ComboLocacaoForm(forms.ModelForm):
+    class Meta:
+        model = ComboLocacao
+        fields = ['combo', 'quantidade']
+        widgets = {
+            'quantidade': forms.NumberInput(attrs={'min': 1, 'placeholder': 'Qtd'}),
+        }
+
+    def clean_quantidade(self):
+        quantidade = self.cleaned_data.get('quantidade')
+        if not quantidade or quantidade <= 0:
+            raise forms.ValidationError('Informe uma quantidade maior que zero.')
+        return quantidade
+
+
+ComboLocacaoFormSet = inlineformset_factory(
+    Locacao, ComboLocacao,
+    form=ComboLocacaoForm,
+    extra=1,
+    can_delete=False,
+    min_num=0,
+    validate_min=False,
 )
 
 # ─── DASHBOARD ───────────────────────────────────────────────────────────────
@@ -236,37 +263,41 @@ def locacoes_list(request):
 def locacao_detalhe(request, pk):
     locacao = get_object_or_404(Locacao, pk=pk)
     itens = locacao.items.select_related('item').all()
-    return render(request, 'locacoes/detalhe.html', {'locacao': locacao, 'itens': itens})
+    combos = locacao.combos.select_related('combo').all()
+    return render(request, 'locacoes/detalhe.html', {'locacao': locacao, 'itens': itens, 'combos': combos})
 
 @login_required
 def locacao_criar(request):
     form = LocacaoForm(request.POST or None)
-    formset = ItemLocacaoFormSet(request.POST or None)
+    formset = ItemLocacaoFormSet(request.POST or None, prefix='items')
+    combo_formset = ComboLocacaoFormSet(request.POST or None, prefix='combos')
 
-    if form.is_valid() and formset.is_valid():
+    if form.is_valid() and formset.is_valid() and combo_formset.is_valid():
         locacao = form.save()
         formset.instance = locacao
         formset.save()
-        locacao.calcular_preco_total()
+        combo_formset.instance = locacao
+        combo_formset.save()
         messages.success(request, 'Locação criada com sucesso!')
         return redirect('locacao_detalhe', pk=locacao.pk)
 
-    return render(request, 'locacoes/form.html', {'form': form, 'formset': formset})
+    return render(request, 'locacoes/form.html', {'form': form, 'formset': formset, 'combo_formset': combo_formset})
 
 @login_required
 def locacao_editar(request, pk):
     locacao = get_object_or_404(Locacao, pk=pk)
     form = LocacaoForm(request.POST or None, instance=locacao)
-    formset = ItemLocacaoFormSet(request.POST or None, instance=locacao)
+    formset = ItemLocacaoFormSet(request.POST or None, instance=locacao, prefix='items')
+    combo_formset = ComboLocacaoFormSet(request.POST or None, instance=locacao, prefix='combos')
 
-    if form.is_valid() and formset.is_valid():
+    if form.is_valid() and formset.is_valid() and combo_formset.is_valid():
         form.save()
         formset.save()
-        locacao.calcular_preco_total()
+        combo_formset.save()
         messages.success(request, 'Locação atualizada!')
         return redirect('locacao_detalhe', pk=locacao.pk)
 
-    return render(request, 'locacoes/form.html', {'form': form, 'formset': formset})
+    return render(request, 'locacoes/form.html', {'form': form, 'formset': formset, 'combo_formset': combo_formset})
 
 @login_required
 def locacao_finalizar(request, pk):

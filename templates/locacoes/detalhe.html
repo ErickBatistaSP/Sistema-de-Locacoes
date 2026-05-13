@@ -150,8 +150,6 @@
                         <tr>
                             <th>Item</th>
                             <th>Qtd</th>
-                            <th>Preço Unit.</th>
-                            <th>Subtotal</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -159,10 +157,6 @@
                         <tr>
                             <td style="color:var(--text)">{{ il.item.get_tipo_display }}</td>
                             <td>{{ il.quantidade }}</td>
-                            <td>R$ {{ il.preco_unitario }}</td>
-                            <td style="color:var(--accent);font-weight:600">
-                                R$ {% widthratio il.preco_unitario 1 il.quantidade %}
-                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -174,6 +168,39 @@
                 {% endif %}
             </div>
         </div>
+
+        {% if combos %}
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Combos Locados</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Combo</th>
+                            <th>Qtd</th>
+                            <th>Itens inclusos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cl in combos %}
+                        <tr>
+                            <td style="color:var(--text)">{{ cl.combo.nome }}</td>
+                            <td>{{ cl.quantidade }}</td>
+                            <td style="color:var(--text2);font-size:0.8rem">
+                                {% for ci in cl.combo.itens.all %}
+                                    {{ ci.quantidade }}x {{ ci.item.get_tipo_display }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
     </div>
 
     <div style="display:flex;flex-direction:column;gap:16px">

@@ -90,6 +90,13 @@
                         {{ form.data_fim.errors }}
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label>Valor Total (R$)</label>
+                    {{ form.preco_total }}
+                    {{ form.preco_total.errors }}
+                </div>
+
                 <div class="form-group">
                     <label>Observações</label>
                     {{ form.observacoes }}
@@ -151,17 +158,45 @@
                         {{ item_form.quantidade }}
                         {{ item_form.quantidade.errors }}
                     </div>
-                    <div class="form-group" style="margin:0">
-                        <label>Preço Unit. (R$)</label>
-                        {{ item_form.preco_unitario }}
-                        {{ item_form.preco_unitario.errors }}
-                    </div>
                     <button type="button" class="remove-btn" onclick="removeFormset(this)">✕</button>
                 </div>
             {% endfor %}
         </div>
         <button type="button" class="btn btn-secondary add-item-btn" onclick="addFormset()">
             + Adicionar item
+        </button>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><span class="card-title">Combos da Locação</span></div>
+    <div class="card-body">
+        {{ combo_formset.management_form }}
+
+        {% if combo_formset.non_form_errors %}
+            <div class="alert alert-error">⚠️ {{ combo_formset.non_form_errors }}</div>
+        {% endif %}
+
+        <div id="combo-formset-container">
+            {% for combo_form in combo_formset %}
+                <div class="formset-item">
+                    {{ combo_form.id }}
+                    <div class="form-group" style="margin:0">
+                        <label>Combo</label>
+                        {{ combo_form.combo }}
+                        {{ combo_form.combo.errors }}
+                    </div>
+                    <div class="form-group" style="margin:0">
+                        <label>Quantidade</label>
+                        {{ combo_form.quantidade }}
+                        {{ combo_form.quantidade.errors }}
+                    </div>
+                    <button type="button" class="remove-btn" onclick="removeComboFormset(this)">✕</button>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" class="btn btn-secondary add-item-btn" onclick="addComboFormset()">
+            + Adicionar combo
         </button>
     </div>
 </div>
@@ -196,13 +231,13 @@
 
 {% block extra_js %}
 <script>
+// ─── ITENS ───────────────────────────────────────────────────────────────────
 const totalForms = document.getElementById('id_items-TOTAL_FORMS');
 
 function addFormset() {
     const container = document.getElementById('formset-container');
-    const forms = container.querySelectorAll('.formset-item');
-    const newIndex = forms.length;
-    const template = forms[0].cloneNode(true);
+    const newIndex = parseInt(totalForms.value);
+    const template = container.querySelectorAll('.formset-item')[0].cloneNode(true);
 
     template.querySelectorAll('input, select').forEach(el => {
         el.name = el.name.replace(/items-\d+/, `items-${newIndex}`);
@@ -211,14 +246,54 @@ function addFormset() {
     });
 
     container.appendChild(template);
-    totalForms.value = parseInt(totalForms.value) + 1;
+    totalForms.value = newIndex + 1;
 }
 
 function removeFormset(btn) {
     const container = document.getElementById('formset-container');
-    if (container.querySelectorAll('.formset-item').length > 1) {
+    const items = container.querySelectorAll('.formset-item');
+    if (items.length > 1) {
         btn.closest('.formset-item').remove();
-        totalForms.value = parseInt(totalForms.value) - 1;
+        container.querySelectorAll('.formset-item').forEach((item, index) => {
+            item.querySelectorAll('input, select').forEach(el => {
+                el.name = el.name.replace(/items-\d+/, `items-${index}`);
+                el.id = el.id.replace(/items-\d+/, `items-${index}`);
+            });
+        });
+        totalForms.value = container.querySelectorAll('.formset-item').length;
+    }
+}
+
+// ─── COMBOS ──────────────────────────────────────────────────────────────────
+const totalComboForms = document.getElementById('id_combos-TOTAL_FORMS');
+
+function addComboFormset() {
+    const container = document.getElementById('combo-formset-container');
+    const newIndex = parseInt(totalComboForms.value);
+    const template = container.querySelectorAll('.formset-item')[0].cloneNode(true);
+
+    template.querySelectorAll('input, select').forEach(el => {
+        el.name = el.name.replace(/combos-\d+/, `combos-${newIndex}`);
+        el.id = el.id.replace(/combos-\d+/, `combos-${newIndex}`);
+        if (el.type !== 'hidden') el.value = '';
+    });
+
+    container.appendChild(template);
+    totalComboForms.value = newIndex + 1;
+}
+
+function removeComboFormset(btn) {
+    const container = document.getElementById('combo-formset-container');
+    const items = container.querySelectorAll('.formset-item');
+    if (items.length > 1) {
+        btn.closest('.formset-item').remove();
+        container.querySelectorAll('.formset-item').forEach((item, index) => {
+            item.querySelectorAll('input, select').forEach(el => {
+                el.name = el.name.replace(/combos-\d+/, `combos-${index}`);
+                el.id = el.id.replace(/combos-\d+/, `combos-${index}`);
+            });
+        });
+        totalComboForms.value = container.querySelectorAll('.formset-item').length;
     }
 }
 </script>
