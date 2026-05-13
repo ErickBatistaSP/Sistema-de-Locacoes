@@ -98,6 +98,17 @@ class LocacaoForm(forms.ModelForm):
             'endereco_referencia': forms.TextInput(attrs={'placeholder': 'Ponto de referência'}),
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        data_inicio = cleaned_data.get('data_inicio')
+        data_fim = cleaned_data.get('data_fim')
+
+        if data_inicio and data_fim:
+            if data_fim < data_inicio:
+                raise forms.ValidationError('A data de fim não pode ser anterior à data de início.')
+
+        return cleaned_data
+
 class ItemLocacaoForm(forms.ModelForm):
     class Meta:
         model = ItemLocacao
@@ -111,6 +122,24 @@ class ItemLocacaoForm(forms.ModelForm):
         if not quantidade or quantidade <= 0:
             raise forms.ValidationError('Informe uma quantidade maior que zero.')
         return quantidade
+
+    def clean(self):
+        cleaned_data = super().clean()
+        item = cleaned_data.get('item')
+        quantidade = cleaned_data.get('quantidade')
+
+        if item and quantidade:
+            if self.instance.pk:
+                anterior = ItemLocacao.objects.get(pk=self.instance.pk)
+                disponivel = item.quantidade_estoque + anterior.quantidade
+            else:
+                disponivel = item.quantidade_estoque
+
+            if quantidade > disponivel:
+                raise forms.ValidationError(
+                    f"Estoque insuficiente! Disponível: {disponivel} unidade(s) de {item.get_tipo_display()}."
+                )
+        return cleaned_data
 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -126,7 +155,7 @@ ItemLocacaoFormSet = inlineformset_factory(
     form=ItemLocacaoForm,
     extra=1,
     can_delete=False,
-    min_num=1,
+    min_num=0,
     validate_min=True,
 )
 
@@ -164,7 +193,8 @@ def dashboard(request):
         item.quantidade_max = max_estoque
 
     faturamento = sum(
-        l.preco_total for l in Locacao.objects.filter(status='finalizada')
+    l.preco_total for l in Locacao.objects.filter(status='finalizada')
+    if l.preco_total is not None
     )
 
     return render(request, 'dashboard/dashboard.html', {
@@ -273,13 +303,20 @@ def locacao_criar(request):
     combo_formset = ComboLocacaoFormSet(request.POST or None, prefix='combos')
 
     if form.is_valid() and formset.is_valid() and combo_formset.is_valid():
-        locacao = form.save()
-        formset.instance = locacao
-        formset.save()
-        combo_formset.instance = locacao
-        combo_formset.save()
-        messages.success(request, 'Locação criada com sucesso!')
-        return redirect('locacao_detalhe', pk=locacao.pk)
+        # Verifica se tem pelo menos 1 item ou 1 combo
+        tem_item = any(f.cleaned_data.get('item') for f in formset if f.cleaned_data)
+        tem_combo = any(f.cleaned_data.get('combo') for f in combo_formset if f.cleaned_data)
+
+        if not tem_item and not tem_combo:
+            messages.error(request, 'Adicione pelo menos um item ou um combo na locação.')
+        else:
+            locacao = form.save()
+            formset.instance = locacao
+            formset.save()
+            combo_formset.instance = locacao
+            combo_formset.save()
+            messages.success(request, 'Locação criada com sucesso!')
+            return redirect('locacao_detalhe', pk=locacao.pk)
 
     return render(request, 'locacoes/form.html', {'form': form, 'formset': formset, 'combo_formset': combo_formset})
 
@@ -291,11 +328,20 @@ def locacao_editar(request, pk):
     combo_formset = ComboLocacaoFormSet(request.POST or None, instance=locacao, prefix='combos')
 
     if form.is_valid() and formset.is_valid() and combo_formset.is_valid():
-        form.save()
-        formset.save()
-        combo_formset.save()
-        messages.success(request, 'Locação atualizada!')
-        return redirect('locacao_detalhe', pk=locacao.pk)
+        # Verifica se tem pelo menos 1 item ou 1 combo
+        tem_item = any(f.cleaned_data.get('item') for f in formset if f.cleaned_data)
+        tem_combo = any(f.cleaned_data.get('combo') for f in combo_formset if f.cleaned_data)
+
+        if not tem_item and not tem_combo:
+            messages.error(request, 'Adicione pelo menos um item ou um combo na locação.')
+        else:
+            locacao = form.save()
+            formset.instance = locacao
+            formset.save()
+            combo_formset.instance = locacao
+            combo_formset.save()
+            messages.success(request, 'Locação criada com sucesso!')
+            return redirect('locacao_detalhe', pk=locacao.pk)
 
     return render(request, 'locacoes/form.html', {'form': form, 'formset': formset, 'combo_formset': combo_formset})
 

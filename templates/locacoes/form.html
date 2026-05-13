@@ -76,11 +76,18 @@
 <div class="locacao-layout">
     <div style="display:flex;flex-direction:column;gap:20px">
 
-        <div class="card">
-            <div class="card-header"><span class="card-title">Dados da Locação</span></div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label>Cliente</label>
+    <div class="card">
+        <div class="card-header"><span class="card-title">Dados da Locação</span></div>
+        <div class="card-body">
+            {% if form.non_field_errors %}
+             {% for error in form.non_field_errors %}
+                    <div class="alert alert-error">⚠️ {{ error }}</div>
+             {% endfor %}
+            {% endif %}
+
+        <div class="form-group">
+            <label>Cliente</label>
+            ...
                     {{ form.cliente }}
                     {{ form.cliente.errors }}
                 </div>
@@ -129,8 +136,95 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Bairro</label>
-                        {{ form.endereco_bairro }}
-                        {{ form.endereco_bairro.errors }}
+                        <input type="text" name="endereco_bairro" value="{{ form.endereco_bairro.value|default:'' }}" 
+                            list="bairros-list" placeholder="Digite ou selecione o bairro"
+                            autocomplete="off">
+                        <datalist id="bairros-list">
+                            <option value="Alvorada">
+                            <option value="Aviação">
+                            <option value="Bamburral">
+                            <option value="Boa Vista">
+                            <option value="Buraco Quente">
+                            <option value="Carapina">
+                            <option value="Centro">
+                            <option value="Chácara do Rio Preto">
+                            <option value="Fatima">
+                            <option value="Forno Velho">
+                            <option value="Ideal">
+                            <option value="Inocoop">
+                            <option value="Interlagos">
+                            <option value="Jaderbal">
+                            <option value="Jardim Bandeirantes">
+                            <option value="Litorâneo">
+                            <option value="Manoel Alves">
+                            <option value="Morada do Ribeirão">
+                            <option value="Ouro Negro">
+                            <option value="Pedra D'Água">
+                            <option value="Residencial Barra Nova">
+                            <option value="Sernamby">
+                            <option value="Universitário">
+                            <option value="Aroeira">
+                            <option value="Ayrton Senna">
+                            <option value="Bom Sucesso I">
+                            <option value="Bom Sucesso II">
+                            <option value="Bom Sucesso III">
+                            <option value="Caiçaras">
+                            <option value="Colina">
+                            <option value="Morada do Lago">
+                            <option value="Nova São Mateus">
+                            <option value="Novo Horizonte">
+                            <option value="Santo Antônio">
+                            <option value="São Pedro">
+                            <option value="Vila Nova">
+                            <option value="Vila Verde">
+                            <option value="Vitória">
+                            <option value="Guriri Norte">
+                            <option value="Guriri Sul">
+                            <option value="Bosque de Guriri">
+                            <option value="Mariricu">
+                            <option value="Barra Nova">
+                            <option value="Barra Nova Norte">
+                            <option value="Barra Nova Sul">
+                            <option value="Pedra de Inga">
+                            <option value="San Remo">
+                            <option value="Balneário das Garças">
+                            <option value="Itauninhas">
+                            <option value="Nestor Gomes">
+                            <option value="Nova Verona">
+                            <option value="Brejo Velho">
+                            <option value="São Miguel">
+                            <option value="Ranchinho">
+                            <option value="Fazenda Paulista">
+                            <option value="Córrego do Macaco">
+                            <option value="Barro Novo">
+                            <option value="Água Preta">
+                            <option value="Palmito">
+                            <option value="Sapucaia">
+                            <option value="Palmitinho">
+                            <option value="Pântano">
+                            <option value="Gameleira">
+                            <option value="Fazenda do Ponto">
+                            <option value="Campo Grande">
+                            <option value="Fazenda Boa Vista">
+                            <option value="Quilômetro 35">
+                            <option value="São Brás">
+                            <option value="Cristo Rei">
+                            <option value="Palmeira">
+                            <option value="Formigão">
+                            <option value="Bio Preto">
+                            <option value="Santo Anjo">
+                            <option value="Cerejeira">
+                            <option value="Córrego Rio Preto">
+                            <option value="Alegria">
+                            <option value="Terra Fresca">
+                            <option value="Veado Vermelho">
+                            <option value="Vargem Grande">
+                            <option value="Floresta">
+                            <option value="São João Bosco">
+                            <option value="São Jorge da Barra Seca">
+                            <option value="KM 18">
+                        </datalist>
+                        {{ form.bairro.errors }}
                     </div>
                     <div class="form-group">
                         <label>Referência</label>
@@ -146,9 +240,9 @@
     <div class="card-body">
         {{ formset.management_form }}
         
-        {% if formset.non_form_errors %}
-            <div class="alert alert-error">⚠️ {{ formset.non_form_errors }}</div>
-        {% endif %}
+        {% if formset.total_error_count %}
+            <div class="alert alert-error">⚠️ Verifique as quantidades — um ou mais itens com estoque insuficiente.</div>
+        {% endif %} 
 
         <div id="formset-container">
             {% for item_form in formset %}

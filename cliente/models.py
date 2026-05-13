@@ -3,7 +3,7 @@ from django.db import models
 class Cliente(models.Model):
     nome = models.CharField(max_length=100, unique=True)
     telefone = models.CharField(max_length=15)
-    bairro = models.CharField(max_length=100)
+    bairro = models.CharField(max_length=100, blank=True)
     endereco = models.CharField(max_length=200, blank=True)
 
     class Meta:
