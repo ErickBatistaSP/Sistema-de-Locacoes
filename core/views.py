@@ -41,12 +41,13 @@ def logout_view(request):
 class ClienteForm(forms.ModelForm):
     class Meta:
         model = Cliente
-        fields = ['nome', 'telefone', 'bairro', 'endereco']
+        fields = ['nome', 'telefone', 'bairro', 'endereco', 'cep']
         widgets = {
             'nome': forms.TextInput(attrs={'placeholder': 'Nome completo'}),
             'telefone': forms.TextInput(attrs={'placeholder': '(27) 99999-9999'}),
             'bairro': forms.TextInput(attrs={'placeholder': 'Nome do bairro'}),
             'endereco': forms.TextInput(attrs={'placeholder': 'Rua, número'}),
+            'cep': forms.TextInput(attrs={'placeholder': '00000-000', 'maxlength': '9'}),
         }
 
     def clean(self):

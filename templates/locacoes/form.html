@@ -135,97 +135,99 @@
                 </div>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Bairro</label>
-                        <input type="text" name="endereco_bairro" value="{{ form.endereco_bairro.value|default:'' }}" 
-                            list="bairros-list" placeholder="Digite ou selecione o bairro"
-                            autocomplete="off">
-                        <datalist id="bairros-list">
-                            <option value="Alvorada">
-                            <option value="Aviação">
-                            <option value="Bamburral">
-                            <option value="Boa Vista">
-                            <option value="Buraco Quente">
-                            <option value="Carapina">
-                            <option value="Centro">
-                            <option value="Chácara do Rio Preto">
-                            <option value="Fatima">
-                            <option value="Forno Velho">
-                            <option value="Ideal">
-                            <option value="Inocoop">
-                            <option value="Interlagos">
-                            <option value="Jaderbal">
-                            <option value="Jardim Bandeirantes">
-                            <option value="Litorâneo">
-                            <option value="Manoel Alves">
-                            <option value="Morada do Ribeirão">
-                            <option value="Ouro Negro">
-                            <option value="Pedra D'Água">
-                            <option value="Residencial Barra Nova">
-                            <option value="Sernamby">
-                            <option value="Universitário">
-                            <option value="Aroeira">
-                            <option value="Ayrton Senna">
-                            <option value="Bom Sucesso I">
-                            <option value="Bom Sucesso II">
-                            <option value="Bom Sucesso III">
-                            <option value="Caiçaras">
-                            <option value="Colina">
-                            <option value="Morada do Lago">
-                            <option value="Nova São Mateus">
-                            <option value="Novo Horizonte">
-                            <option value="Santo Antônio">
-                            <option value="São Pedro">
-                            <option value="Vila Nova">
-                            <option value="Vila Verde">
-                            <option value="Vitória">
-                            <option value="Guriri Norte">
-                            <option value="Guriri Sul">
-                            <option value="Bosque de Guriri">
-                            <option value="Mariricu">
-                            <option value="Barra Nova">
-                            <option value="Barra Nova Norte">
-                            <option value="Barra Nova Sul">
-                            <option value="Pedra de Inga">
-                            <option value="San Remo">
-                            <option value="Balneário das Garças">
-                            <option value="Itauninhas">
-                            <option value="Nestor Gomes">
-                            <option value="Nova Verona">
-                            <option value="Brejo Velho">
-                            <option value="São Miguel">
-                            <option value="Ranchinho">
-                            <option value="Fazenda Paulista">
-                            <option value="Córrego do Macaco">
-                            <option value="Barro Novo">
-                            <option value="Água Preta">
-                            <option value="Palmito">
-                            <option value="Sapucaia">
-                            <option value="Palmitinho">
-                            <option value="Pântano">
-                            <option value="Gameleira">
-                            <option value="Fazenda do Ponto">
-                            <option value="Campo Grande">
-                            <option value="Fazenda Boa Vista">
-                            <option value="Quilômetro 35">
-                            <option value="São Brás">
-                            <option value="Cristo Rei">
-                            <option value="Palmeira">
-                            <option value="Formigão">
-                            <option value="Bio Preto">
-                            <option value="Santo Anjo">
-                            <option value="Cerejeira">
-                            <option value="Córrego Rio Preto">
-                            <option value="Alegria">
-                            <option value="Terra Fresca">
-                            <option value="Veado Vermelho">
-                            <option value="Vargem Grande">
-                            <option value="Floresta">
-                            <option value="São João Bosco">
-                            <option value="São Jorge da Barra Seca">
-                            <option value="KM 18">
-                        </datalist>
-                        {{ form.bairro.errors }}
-                    </div>
+    <label>Bairro</label>
+    <select id="bairro-select" onchange="toggleBairro(this)" style="margin-bottom:8px">
+        <option value="">Selecione um bairro...</option>
+        <option value="Água Preta">Água Preta</option>
+        <option value="Alegria">Alegria</option>
+        <option value="Alvorada">Alvorada</option>
+        <option value="Aroeira">Aroeira</option>
+        <option value="Aviação">Aviação</option>
+        <option value="Ayrton Senna">Ayrton Senna</option>
+        <option value="Balneário das Garças">Balneário das Garças</option>
+        <option value="Bamburral">Bamburral</option>
+        <option value="Barra Nova">Barra Nova</option>
+        <option value="Barra Nova Norte">Barra Nova Norte</option>
+        <option value="Barra Nova Sul">Barra Nova Sul</option>
+        <option value="Barro Novo">Barro Novo</option>
+        <option value="Bio Preto">Bio Preto</option>
+        <option value="Boa Vista">Boa Vista</option>
+        <option value="Bom Sucesso I">Bom Sucesso I</option>
+        <option value="Bom Sucesso II">Bom Sucesso II</option>
+        <option value="Bom Sucesso III">Bom Sucesso III</option>
+        <option value="Bosque de Guriri">Bosque de Guriri</option>
+        <option value="Brejo Velho">Brejo Velho</option>
+        <option value="Buraco Quente">Buraco Quente</option>
+        <option value="Caiçaras">Caiçaras</option>
+        <option value="Campo Grande">Campo Grande</option>
+        <option value="Carapina">Carapina</option>
+        <option value="Centro">Centro</option>
+        <option value="Cerejeira">Cerejeira</option>
+        <option value="Chácara do Rio Preto">Chácara do Rio Preto</option>
+        <option value="Colina">Colina</option>
+        <option value="Córrego do Macaco">Córrego do Macaco</option>
+        <option value="Córrego Rio Preto">Córrego Rio Preto</option>
+        <option value="Cristo Rei">Cristo Rei</option>
+        <option value="Fatima">Fatima</option>
+        <option value="Fazenda Boa Vista">Fazenda Boa Vista</option>
+        <option value="Fazenda do Ponto">Fazenda do Ponto</option>
+        <option value="Fazenda Paulista">Fazenda Paulista</option>
+        <option value="Floresta">Floresta</option>
+        <option value="Formigão">Formigão</option>
+        <option value="Forno Velho">Forno Velho</option>
+        <option value="Gameleira">Gameleira</option>
+        <option value="Guriri Norte">Guriri Norte</option>
+        <option value="Guriri Sul">Guriri Sul</option>
+        <option value="Ideal">Ideal</option>
+        <option value="Inocoop">Inocoop</option>
+        <option value="Interlagos">Interlagos</option>
+        <option value="Itauninhas">Itauninhas</option>
+        <option value="Jaderbal">Jaderbal</option>
+        <option value="Jardim Bandeirantes">Jardim Bandeirantes</option>
+        <option value="KM 18">KM 18</option>
+        <option value="Litorâneo">Litorâneo</option>
+        <option value="Manoel Alves">Manoel Alves</option>
+        <option value="Mariricu">Mariricu</option>
+        <option value="Morada do Lago">Morada do Lago</option>
+        <option value="Morada do Ribeirão">Morada do Ribeirão</option>
+        <option value="Nestor Gomes">Nestor Gomes</option>
+        <option value="Nova São Mateus">Nova São Mateus</option>
+        <option value="Nova Verona">Nova Verona</option>
+        <option value="Novo Horizonte">Novo Horizonte</option>
+        <option value="Ouro Negro">Ouro Negro</option>
+        <option value="Palmeira">Palmeira</option>
+        <option value="Palmito">Palmito</option>
+        <option value="Palmitinho">Palmitinho</option>
+        <option value="Pântano">Pântano</option>
+        <option value="Pedra D'Água">Pedra D'Água</option>
+        <option value="Pedra de Inga">Pedra de Inga</option>
+        <option value="Quilômetro 35">Quilômetro 35</option>
+        <option value="Ranchinho">Ranchinho</option>
+        <option value="Residencial Barra Nova">Residencial Barra Nova</option>
+        <option value="San Remo">San Remo</option>
+        <option value="Santo Antônio">Santo Antônio</option>
+        <option value="Santo Anjo">Santo Anjo</option>
+        <option value="São Brás">São Brás</option>
+        <option value="São João Bosco">São João Bosco</option>
+        <option value="São Jorge da Barra Seca">São Jorge da Barra Seca</option>
+        <option value="São Miguel">São Miguel</option>
+        <option value="São Pedro">São Pedro</option>
+        <option value="Sapucaia">Sapucaia</option>
+        <option value="Sernamby">Sernamby</option>
+        <option value="Terra Fresca">Terra Fresca</option>
+        <option value="Universitário">Universitário</option>
+        <option value="Vargem Grande">Vargem Grande</option>
+        <option value="Veado Vermelho">Veado Vermelho</option>
+        <option value="Vila Nova">Vila Nova</option>
+        <option value="Vila Verde">Vila Verde</option>
+        <option value="Vitória">Vitória</option>
+        <option value="outro">Outro (digitar manualmente)</option>
+    </select>
+    <input type="text" name="endereco_bairro" id="bairro-locacao-input" 
+           value="{{ form.endereco_bairro.value|default:'' }}"
+           placeholder="Digite o bairro" style="display:none">
+    {{ form.endereco_bairro.errors }}
+</div>
                     <div class="form-group">
                         <label>Referência</label>
                         {{ form.endereco_referencia }}
@@ -396,5 +398,40 @@ function removeComboFormset(btn) {
         totalComboForms.value = container.querySelectorAll('.formset-item').length;
     }
 }
+
+function toggleBairro(select) {
+    const input = document.getElementById('bairro-locacao-input');
+    if (select.value === 'outro') {
+        input.style.display = 'block';
+        input.value = '';
+        input.focus();
+    } else {
+        input.style.display = 'none';
+        input.value = select.value;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const bairroAtual = "{{ form.endereco_bairro.value|default:'' }}";
+    const select = document.getElementById('bairro-select');
+    const input = document.getElementById('bairro-locacao-input');
+
+    if (bairroAtual) {
+        let encontrou = false;
+        for (let option of select.options) {
+            if (option.value === bairroAtual) {
+                select.value = bairroAtual;
+                input.value = bairroAtual;
+                encontrou = true;
+                break;
+            }
+        }
+        if (!encontrou) {
+            select.value = 'outro';
+            input.style.display = 'block';
+            input.value = bairroAtual;
+        }
+    }
+});
 </script>
 {% endblock %}

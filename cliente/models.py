@@ -5,6 +5,7 @@ class Cliente(models.Model):
     telefone = models.CharField(max_length=15)
     bairro = models.CharField(max_length=100, blank=True)
     endereco = models.CharField(max_length=200, blank=True)
+    cep = models.CharField(max_length=9, blank=True, null=True)
 
     class Meta:
         constraints = [
